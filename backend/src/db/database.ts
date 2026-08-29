@@ -8,6 +8,8 @@ type UserRow = {
   password_hash: string;
   role: string;
   created_at: string;
+  failed_login_attempts?: number;
+  locked_until?: string | null;
 };
 
 type PaymentRow = {
@@ -60,13 +62,45 @@ export const database = {
     },
     create(user: UserRow) {
       const state = readDb();
-      state.users.push(user);
+      state.users.push({
+        ...user,
+        failed_login_attempts: 0,
+        locked_until: null,
+      });
       writeDb(state);
       return user;
     },
     findById(id: string) {
       const state = readDb();
       return state.users.find((user) => user.id === id) || null;
+    },
+    updateLoginState(email: string, data: { failed_login_attempts: number; locked_until: string | null }) {
+      const state = readDb();
+      const index = state.users.findIndex((user) => user.email === email);
+      if (index === -1) return null;
+
+      state.users[index] = {
+        ...state.users[index],
+        failed_login_attempts: data.failed_login_attempts,
+        locked_until: data.locked_until,
+      };
+
+      writeDb(state);
+      return state.users[index];
+    },
+    resetLoginState(email: string) {
+      const state = readDb();
+      const index = state.users.findIndex((user) => user.email === email);
+      if (index === -1) return null;
+
+      state.users[index] = {
+        ...state.users[index],
+        failed_login_attempts: 0,
+        locked_until: null,
+      };
+
+      writeDb(state);
+      return state.users[index];
     },
   },
   payments: {

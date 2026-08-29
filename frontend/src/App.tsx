@@ -7,7 +7,7 @@ type AuthMode = 'login' | 'register';
 
 function App() {
   const [mode, setMode] = useState<AuthMode>('register');
-  const [token, setToken] = useState<string | null>(localStorage.getItem('privatepay_token'));
+  const [token, setToken] = useState<string | null>(sessionStorage.getItem('privatepay_token'));
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
@@ -30,7 +30,7 @@ function App() {
   );
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('privatepay_user');
+    const storedUser = sessionStorage.getItem('privatepay_user');
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
@@ -80,8 +80,8 @@ function App() {
       const nextUser = data.user as User;
       setToken(data.token);
       setUser(nextUser);
-      localStorage.setItem('privatepay_token', data.token);
-      localStorage.setItem('privatepay_user', JSON.stringify(nextUser));
+      sessionStorage.setItem('privatepay_token', data.token);
+      sessionStorage.setItem('privatepay_user', JSON.stringify(nextUser));
       setMessage(mode === 'register' ? 'Conta criada com sucesso.' : 'Login realizado com sucesso.');
       setForm({ name: '', email: '', password: '' });
     } catch (error) {
@@ -132,8 +132,8 @@ function App() {
     setToken(null);
     setUser(null);
     setPayments([]);
-    localStorage.removeItem('privatepay_token');
-    localStorage.removeItem('privatepay_user');
+    sessionStorage.removeItem('privatepay_token');
+    sessionStorage.removeItem('privatepay_user');
   }
 
   if (!user || !token) {

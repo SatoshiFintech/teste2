@@ -66,10 +66,42 @@ router.post('/login', async (req, res) => {
     return res.status(401).json({ error: 'Credenciais inválidas.' });
   }
 
+  const lockoutMinutes = 15;
+  const lockoutUntil = user.locked_until ? new Date(user.locked_until).getTime() : 0;
+  const isLocked = Number.isFinite(lockoutUntil) && lockoutUntil > Date.now();
+
+  if (isLocked) {
+    return res.status(429).json({
+      error: `Conta temporariamente bloqueada por falhas repetidas. Tente novamente em ${lockoutMinutes} minutos.`,
+    });
+  }
+
   const valid = await bcrypt.compare(password, user.password_hash);
   if (!valid) {
+    const failedAttempts = (user.failed_login_attempts || 0) + 1;
+    const maxAttempts = 5;
+
+    if (failedAttempts >= maxAttempts) {
+      const lockedUntil = new Date(Date.now() + lockoutMinutes * 60 * 1000).toISOString();
+      database.users.updateLoginState(email, {
+        failed_login_attempts: failedAttempts,
+        locked_until: lockedUntil,
+      });
+
+      return res.status(429).json({
+        error: `Muitas tentativas falhas. Sua conta foi bloqueada por ${lockoutMinutes} minutos.`,
+      });
+    }
+
+    database.users.updateLoginState(email, {
+      failed_login_attempts: failedAttempts,
+      locked_until: null,
+    });
+
     return res.status(401).json({ error: 'Credenciais inválidas.' });
   }
+
+  database.users.resetLoginState(email);
 
   const token = jwt.sign({ id: user.id, email: user.email, name: user.name, role: user.role }, env.jwtSecret, { expiresIn: '8h' });
 

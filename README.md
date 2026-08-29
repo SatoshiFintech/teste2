@@ -6,7 +6,7 @@ Gateway de pagamentos privada para uso interno com painel administrativo e API s
 
 - Backend: Node.js + Express + TypeScript
 - Frontend: React + Vite + Tailwind
-- Autenticação: JWT + bcrypt
+- AutenticaÃ§Ã£o: JWT + bcrypt
 - Armazenamento: JSON local em ambiente privado
 
 ## Requisitos
@@ -14,27 +14,27 @@ Gateway de pagamentos privada para uso interno com painel administrativo e API s
 - Node.js 20+
 - npm
 
-## Instalação
+## InstalaÃ§Ã£o
 
 ```bash
 cd backend && npm install
 cd ../frontend && npm install
 ```
 
-## Execução
+## ExecuÃ§Ã£o
 
 ```bash
 cd backend && npm run dev
 cd frontend && npm run dev
 ```
 
-## Variáveis de ambiente
+## VariÃ¡veis de ambiente
 
 Copie os exemplos e configure valores reais:
 
 - backend/.env.example
 - frontend/.env.example
 
-## Observações
+## ObservaÃ§Ãµes
 
-Projeto preparado para deploy em VPS sem Docker e sem integração com PayPal.
+Projeto preparado para deploy em VPS sem Docker e sem integraÃ§Ã£o com PayPal.
